@@ -1,10 +1,10 @@
 # shipyard's own manifest — first repo born under the standard it manages.
-id: shipyard
+id: shipyard-pbtr
 name: Shipyard
 description: Project-lifecycle manager for the code/ fleet — the chart that says why each repo exists, the gate that says what may start, and the cycles that close.
 links:
   app: http://localhost:8845
   readme: README.md
   adr: docs/adr/
-mc: [shipyard]
+mc: []
 tags: [fleet, meta, standards]
