@@ -1,0 +1,14 @@
+# A shipyard template: a starting shape, never a standard.
+# Nothing is ever checked against this, and an instantiated copy forgets it.
+name: Research spike
+description: A timeboxed question. Ends in an answer or a kill, never in a maybe.
+problems:
+- title: The question is stated
+  waypoint: one sentence, answerable yes or no
+  children: []
+- title: The answer is found
+  waypoint: a written verdict with the evidence that produced it
+  children: []
+- title: The spike is closed
+  waypoint: promoted to a project, or killed with a reason on the record
+  children: []

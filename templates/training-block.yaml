@@ -1,0 +1,14 @@
+# A shipyard template: a starting shape, never a standard.
+# Nothing is ever checked against this, and an instantiated copy forgets it.
+name: Training block
+description: A training phase. Done, progressed, and not paid for in injury.
+problems:
+- title: The block was done
+  waypoint: sessions completed divided by planned is at least 85%
+  children: []
+- title: Load progressed
+  waypoint: the top set moved on three of four lifts
+  children: []
+- title: It didn't cost me
+  waypoint: no week lost to injury or exhaustion
+  children: []

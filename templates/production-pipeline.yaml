@@ -1,0 +1,15 @@
+# A shipyard template: a starting shape, never a standard.
+# Nothing is ever checked against this, and an instantiated copy forgets it.
+name: Production pipeline
+description: Built to turn effort into finished artifacts repeatedly. One good output
+  proves nothing — the claim is about the second and the tenth.
+problems:
+- title: An artifact shipped
+  waypoint: one finished piece is public, start to end, through the pipeline
+  children: []
+- title: It reruns without babysitting
+  waypoint: a second artifact goes through with no manual repair between stages
+  children: []
+- title: Quality holds at volume
+  waypoint: the tenth output is not visibly worse than the first
+  children: []

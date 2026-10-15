@@ -1,0 +1,15 @@
+# A shipyard template: a starting shape, never a standard.
+# Nothing is ever checked against this, and an instantiated copy forgets it.
+name: Habit surface
+description: Built to change my own behaviour. Generalised from Learn Hub, whose whole
+  failure mode was being pleasant to open and producing no data to prove it.
+problems:
+- title: Engagement
+  waypoint: I open it unprompted on a day nothing is due
+  children: []
+- title: Habit
+  waypoint: a month where active days outnumber inactive ones without me forcing it
+  children: []
+- title: Quality
+  waypoint: the thing it is for measurably improved, not just the using of it
+  children: []

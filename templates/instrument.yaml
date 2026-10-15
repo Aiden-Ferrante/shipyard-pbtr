@@ -1,0 +1,15 @@
+# A shipyard template: a starting shape, never a standard.
+# Nothing is ever checked against this, and an instantiated copy forgets it.
+name: Instrument
+description: Built to answer questions rather than to run. The third lens is the one
+  that bites — an instrument nobody has queried is a hypothesis, not a tool.
+problems:
+- title: It produces the data
+  waypoint: the pipeline runs unattended and lands a dataset I did not hand-assemble
+  children: []
+- title: The data can be trusted
+  waypoint: a figure I already know by other means comes back correct from the instrument
+  children: []
+- title: It has answered something
+  waypoint: a question I could not previously settle now has an answer on the record
+  children: []

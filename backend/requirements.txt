@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+pyyaml
+httpx
+pytest
+# Browser test only (tests/test_graph_drawer.py). The package alone is not enough —
+# the browser is a separate download, `make test-ui`. Without both, that file skips.
+playwright

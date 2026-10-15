@@ -1,0 +1,17 @@
+# A shipyard template: a starting shape, never a standard.
+# Nothing is ever checked against this, and an instantiated copy forgets it.
+name: Grow cycle
+description: One run, substrate to yield.
+problems:
+- title: Substrate is clean
+  waypoint: no contamination visible at day seven
+  children: []
+- title: Colonisation succeeded
+  waypoint: full white colonisation by the target date
+  children: []
+- title: Fruiting conditions held
+  waypoint: humidity and temperature in range for the target run of days
+  children: []
+- title: Yield recorded
+  waypoint: wet weight logged per flush
+  children: []

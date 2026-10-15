@@ -1,0 +1,15 @@
+# A shipyard template: a starting shape, never a standard.
+# Nothing is ever checked against this, and an instantiated copy forgets it.
+name: Infrastructure
+description: Built so other work is possible. Its value is what it prevents, which is
+  why the last lens is the honest one and the hardest to fake.
+problems:
+- title: It holds the truth
+  waypoint: what it reports matches the underlying source when I check by hand
+  children: []
+- title: It survives neglect
+  waypoint: comes back from a reboot, and a month of no attention, without hand-holding
+  children: []
+- title: Its absence would be felt
+  waypoint: switching it off for a day breaks something I would have to fix
+  children: []

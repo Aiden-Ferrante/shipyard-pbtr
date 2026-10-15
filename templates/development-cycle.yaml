@@ -1,0 +1,121 @@
+# A shipyard template: a starting shape, never a standard.
+# Nothing is ever checked against this, and an instantiated copy forgets it.
+name: Development cycle
+description: 'One atomic plan-build-test-review. A document only: it recurs per cycle,
+  and putting its steps in the chart would bury the reasoning under process bookkeeping.'
+problems: []
+document:
+  filename: '{slug}-cycle.md'
+  body: '---
+
+    cycle: {slug}
+
+    project: {title}
+
+    opened:
+
+    version:
+
+    ---
+
+
+    # {title} — vX.Y.Z
+
+
+    Light plan under Development Protocol 1.0. A cycle is **atomic**: it passes all
+    four
+
+    phases and cuts a version, or it cuts nothing.
+
+
+    ## Problem
+
+
+    _A failure that already happened, not a feature that is missing. If this section
+
+    describes a solution, the plan has started in the wrong place._
+
+
+    ## Appetite
+
+
+    _A date. **Scope bends, the timebox doesn''t** — when it slips, name what gets
+    cut
+
+    rather than moving the date._
+
+
+    ## In scope
+
+
+    -
+
+
+    ## Out of scope — pruned
+
+
+    _Written before the first commit. A pruned list added afterwards is a description
+    of
+
+    what you happened not to do._
+
+
+    -
+
+
+    ## Guardrails
+
+
+    _Derived, not invented: each one traceable to the parent problem — something that
+
+    would satisfy this cycle while violating the thing above it._
+
+
+    -
+
+
+    ## Commit ladder
+
+
+    _Each rung green before the next. The ladder here should match the ladder in the
+    log._
+
+
+    1.
+
+    2.
+
+    3.
+
+
+    ## Definition of done
+
+
+    _Observed output, never "tests pass". A run, a diff, a file read back._
+
+
+    - [ ]
+
+    - [ ] `make test` green
+
+    - [ ] CHANGELOG entry + tag
+
+
+    ## Retro
+
+
+    _After review. Four questions:_
+
+
+    **What went right?**
+
+
+    **What bit?**
+
+
+    **Was the appetite honest?** _Estimates have been running long; say by how much._
+
+
+    **What carries forward?**
+
+    '

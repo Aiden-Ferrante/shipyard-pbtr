@@ -1,0 +1,40 @@
+{
+  "_": "A small fictional chart for trying the seeder. Two bearings must exist first (create them in the app): 'Ship a CLI tool' and 'Write docs people use'. Run: python3 scripts/seed_chart.py --dry-run",
+  "edits": [
+    {
+      "title": "Ship a CLI tool",
+      "description": "A fictional example bearing. The tool counts words in markdown files; the point is the shape of the chart, not the tool."
+    }
+  ],
+  "nodes": [
+    {
+      "title": "The tool installs in one command",
+      "parents": ["Ship a CLI tool"],
+      "waypoint": "pipx install on a clean machine puts a working `wordcount` on PATH",
+      "falsifier": "a fresh VM needs any step beyond the one command",
+      "kids": [
+        {
+          "title": "CI runs the install on a clean image",
+          "waypoint": "the install job is green on the default branch"
+        }
+      ]
+    },
+    {
+      "title": "The quickstart runs exactly as written",
+      "repo": "demo-cli",
+      "parents": ["Ship a CLI tool", "Write docs people use"],
+      "waypoint": "pasting the README quickstart into a fresh shell produces the documented output",
+      "falsifier": "any quickstart line needs editing before it works"
+    },
+    {
+      "title": "Errors say what to do next",
+      "parents": ["Ship a CLI tool"],
+      "waypoint": "every non-zero exit prints the command that would fix it"
+    },
+    {
+      "title": "Every flag has an example",
+      "parents": ["Write docs people use"],
+      "waypoint": "--help lists an example for each flag, and each example runs"
+    }
+  ]
+}

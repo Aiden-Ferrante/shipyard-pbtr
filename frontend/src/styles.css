@@ -1,0 +1,265 @@
+@import "tailwindcss";
+/* The fleet header (.fleet-apps / .fleet-sections) and its tokens. Shipyard
+   keeps its own @theme below — it is the reference these were lifted from —
+   but the chrome is shared so all four apps read as one product. */
+@import "../../../fleet-ui/fleet.css";
+
+/* Tailwind v4 is CSS-first: this @theme block IS the config — there is no
+   tailwind.config.js. Every token below also becomes a utility, so `--color-warn`
+   is usable as `text-warn` / `bg-warn`. If shipyard's palette is ever extracted
+   into a shared fleet stylesheet, this block is the thing that moves. */
+@theme {
+  /* The stage hues lived here and went in v0.29.3 with the field they coloured.
+     `stage` was the dial `standards.yaml` used to decide which bands a repo owed;
+     that file was deleted in v0.5.0 and the vocabulary outlived its meaning by
+     twenty-four versions. The note the block carried is worth keeping, because it
+     will apply to whatever the rewritten standard colours next: a low-chroma
+     version was tried and reverted — at 0.07 the values were indistinguishable
+     from each other and from body grey, which costs legibility to buy a restraint
+     nobody asked for. Density is a typography problem, and the type scale below
+     is where it gets solved. */
+
+  /* One mono decision for the whole fleet — `font-mono` here and `.t-num`
+     elsewhere resolve to the same stack. */
+  --font-mono: var(--fleet-font-mono);
+
+  /* Same for the sans. This is a no-op today — it spells out the stack Tailwind
+     was already falling back to — but it means the fleet's typeface is stated in
+     fleet.css rather than inherited by accident, which is what let Learn Hub
+     drift onto Inter without anything noticing. */
+  --font-sans: var(--fleet-font-sans);
+
+  /* The four meanings come from fleet.css; this block only lends them Tailwind
+     names. A literal here would be a second definition of the same colour, and
+     the two drifted once already (2026-09-04, when fleet.css gained the -text
+     ink variants and shipyard's copies did not). */
+  /* Ground and ink as utilities (bg-bg, bg-surface, border-border, text-ink,
+     text-dim, text-faint) — the words the 2026-09-04 dark-only codemod wrote in
+     place of zinc pairs. */
+  --color-bg: var(--fleet-bg);
+  --color-surface: var(--fleet-surface);
+  --color-surface-2: var(--fleet-surface-2);
+  --color-border: var(--fleet-border);
+  --color-ink: var(--fleet-text);
+  --color-dim: var(--fleet-text-dim);
+  --color-faint: var(--fleet-text-faint);
+  --color-accent: var(--fleet-accent);
+  --color-accent-text: var(--fleet-accent-text);
+  --color-ok: var(--fleet-ok);
+  --color-ok-text: var(--fleet-ok-text);
+  --color-warn: var(--fleet-warn);
+  --color-warn-text: var(--fleet-warn-text);
+  --color-danger: var(--fleet-danger);
+  --color-danger-text: var(--fleet-danger-text);
+
+  /* THE TYPE SCALE.
+     Before this existed, 72% of every surface rendered at 10–12px and the
+     largest thing inside <main> was 16px — so hierarchy was carried entirely by
+     grey level, which is the weakest of the three channels and the first to
+     collapse under density. These six steps are the whole vocabulary; a raw
+     bracketed pixel size anywhere in the app is a bug now, not a choice —
+     worded that way so fleet-ui/check.sh can grep for the literal pattern. */
+  --text-micro: var(--fleet-text-micro);        /* 11px — chips, counts, meta */
+  --text-micro--line-height: 1.4;
+  --text-meta: var(--fleet-text-meta);          /* 12.5px — secondary lines */
+  --text-meta--line-height: 1.45;
+  --text-body: var(--fleet-text-body);          /* 14px — descriptions, prose in chrome */
+  --text-body--line-height: 1.6;
+  --text-title: var(--fleet-text-title);        /* 15px — card titles */
+  --text-title--line-height: 1.35;
+  --text-section: var(--fleet-text-section);    /* 19px — a bearing heading */
+  --text-section--line-height: 1.25;
+  --text-page: var(--fleet-text-page);          /* 26px — the name of the surface */
+  --text-page--line-height: 1.15;
+
+  --radius-card: var(--fleet-radius);
+  --ease-panel: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Reduced motion, body, focus ring and colour-scheme are fleet.css's. */
+
+/* The slide-over enters from the right; the board behind it stays put so you
+   never lose your place — the old build replaced the whole board on click. */
+@keyframes panel-in {
+  from { transform: translateX(1.5rem); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-panel-in { animation: panel-in 0.22s var(--ease-panel) both; }
+.animate-fade-in { animation: fade-in 0.15s ease-out both; }
+
+/* Rendered arguments. Hand-styled rather than pulling in the typography plugin —
+   an essay page is the one screen where the reading experience is the feature, and
+   it should match the app rather than a generic prose theme. */
+.md-prose, .md-source, .md-editor {
+  /* The document type ramp — a reading register, deliberately NOT the six
+     chrome steps (see the h2 note below on what leaking chrome did to it).
+     Named so every size is a decision and fleet-ui/check.sh needs no
+     exceptions here. */
+  --doc-text: 15.5px;
+  --doc-h1: 30px;
+  --doc-h2: 21px;
+  --doc-h3: 17px;
+  --doc-label: 13px;
+  --doc-code: 13.5px;
+  --doc-lang-tag: 10px;
+  --doc-table: 14px;
+  --doc-source: 13px;
+}
+.md-prose {
+  --md-measure: 72ch;
+  color: var(--fleet-text-dim);
+  font-size: var(--doc-text);
+  line-height: 1.75;
+}
+
+/* Prose holds a comfortable measure; tables and code do not — they carry their own
+   structure and forcing them to 72ch is what makes a wide table unreadable. */
+.md-prose > * { max-width: var(--md-measure); }
+.md-prose > .md-table-wrap,
+.md-prose > pre,
+.md-prose > img { max-width: 100%; }
+
+.md-prose h1, .md-prose h2, .md-prose h3, .md-prose h4 {
+  color: var(--fleet-text);
+  font-weight: 550;
+  letter-spacing: -0.011em;
+  line-height: 1.3;
+  scroll-margin-top: 5rem;      /* anchored headings clear the sticky header */
+}
+.md-prose h1 { font-size: var(--doc-h1); margin: 0 0 0.5em; letter-spacing: -0.02em; }
+
+/* h2 is a section break in a document, not a UI label. It used to render as 13px
+   uppercase tracking — a shipyard chrome convention that had leaked into document
+   rendering and flattened every heading level into the same grey whisper. */
+.md-prose h2 {
+  font-size: var(--doc-h2);
+  margin: 2.4em 0 0.8em;
+  padding-top: 1.4em;
+  border-top: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+}
+.md-prose h1 + h2, .md-prose > h2:first-child { border-top: 0; padding-top: 0; margin-top: 1.2em; }
+.md-prose h3 { font-size: var(--doc-h3); margin: 1.9em 0 0.5em; }
+.md-prose h4 {
+  font-size: var(--doc-label); text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--fleet-text-faint); margin: 1.7em 0 0.5em;
+}
+
+/* An anchor you can link to, revealed on hover so it never competes with the text. */
+.md-prose .md-anchor {
+  margin-left: 0.4em; opacity: 0; text-decoration: none;
+  color: var(--fleet-text-faint); font-weight: 400;
+  transition: opacity 120ms ease;
+}
+.md-prose h2:hover .md-anchor, .md-prose h3:hover .md-anchor { opacity: 1; }
+
+.md-prose p { margin: 0 0 1.15em; }
+.md-prose ul, .md-prose ol { margin: 0 0 1.15em; padding-left: 1.4em; }
+.md-prose li { margin: 0.35em 0; }
+.md-prose li > ul, .md-prose li > ol { margin: 0.35em 0 0.2em; }
+.md-prose ul { list-style: disc; }
+.md-prose ol { list-style: decimal; }
+.md-prose li::marker { color: var(--fleet-text-faint); }
+
+.md-prose a {
+  color: var(--fleet-accent-text);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--color-accent) 35%, transparent);
+  text-underline-offset: 2.5px;
+  transition: text-decoration-color 120ms ease;
+}
+.md-prose a:hover { text-decoration-color: var(--color-accent); }
+
+.md-prose code {
+  font-family: var(--fleet-font-mono);
+  font-size: 0.86em;
+  background: color-mix(in oklab, currentColor 8%, transparent);
+  padding: 0.12em 0.36em; border-radius: 4px;
+  word-break: break-word;
+}
+
+/* Code blocks get a frame and their language named. 62 of the fenced blocks across
+   these docs are shell — knowing that at a glance is most of the value. */
+.md-prose pre {
+  position: relative;
+  background: color-mix(in oklab, currentColor 4%, transparent);
+  border: 1px solid color-mix(in oklab, currentColor 10%, transparent);
+  padding: 14px 16px; border-radius: 10px;
+  overflow-x: auto; margin: 0 0 1.3em;
+  font-size: var(--doc-code); line-height: 1.65;
+}
+.md-prose pre code { background: none; padding: 0; font-size: inherit; }
+.md-prose pre[data-lang]::before {
+  content: attr(data-lang);
+  position: absolute; top: 0; right: 0;
+  padding: 3px 10px;
+  font-family: var(--fleet-font-mono); font-size: var(--doc-lang-tag);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--fleet-text-faint);
+  background: color-mix(in oklab, currentColor 6%, transparent);
+  border-bottom-left-radius: 8px;
+}
+
+/* Tables: sixteen of these documents use them and none of it was styled, so a
+   comparison table rendered as run-together text. */
+.md-prose .md-table-wrap { overflow-x: auto; margin: 0 0 1.4em; }
+.md-prose table {
+  width: 100%; border-collapse: collapse;
+  font-size: var(--doc-table); line-height: 1.55;
+}
+.md-prose thead th {
+  text-align: left; font-weight: 550;
+  color: var(--fleet-text);
+  padding: 0 14px 8px 0; white-space: nowrap;
+  border-bottom: 1px solid color-mix(in oklab, currentColor 25%, transparent);
+}
+.md-prose tbody td {
+  padding: 9px 14px 9px 0; vertical-align: top;
+  border-bottom: 1px solid color-mix(in oklab, currentColor 9%, transparent);
+}
+.md-prose tbody tr:last-child td { border-bottom: 0; }
+.md-prose th:last-child, .md-prose td:last-child { padding-right: 0; }
+
+.md-prose blockquote {
+  border-left: 2px solid color-mix(in oklab, var(--color-accent) 45%, transparent);
+  padding: 0.1em 0 0.1em 1.1em; margin: 0 0 1.3em;
+  color: var(--fleet-text-faint);
+}
+.md-prose blockquote p:last-child { margin-bottom: 0; }
+
+.md-prose hr {
+  border: 0; height: 1px; margin: 2.6em 0;
+  background: color-mix(in oklab, currentColor 14%, transparent);
+}
+.md-prose img { max-width: 100%; border-radius: 8px; }
+.md-prose em { font-style: italic; }
+.md-prose strong { font-weight: 550; color: var(--fleet-text); }
+
+/* A source file is not prose: it renders as one block, full width, no measure. */
+.md-source { font-size: var(--doc-source); line-height: 1.6; }
+.md-source pre { max-width: 100%; margin: 0; }
+
+/* The editor is typeset like the document, not like code. Writing prose into a
+   monospace box is the fastest way to stop writing prose — same face, same measure
+   and same rhythm as .md-prose, so toggling barely moves the text. */
+.md-editor {
+  font-family: inherit;
+  font-size: var(--doc-text);
+  line-height: 1.75;
+  max-width: 68ch;
+  width: 100%;
+  border: 0;
+  /* The fleet's ring, pushed out to the measure's edge and softened: a writing
+     surface shows focus with its caret; the ring only has to say "this box". */
+  outline-offset: 8px;
+  background: transparent;
+  resize: none;
+  overflow: hidden;          /* grows to fit; the page scrolls, not the box */
+  color: var(--fleet-text-dim);
+  caret-color: var(--fleet-accent);
+}
+.md-editor:focus-visible { outline-color: var(--fleet-border); }
+.md-editor::placeholder { color: var(--fleet-text-faint); }

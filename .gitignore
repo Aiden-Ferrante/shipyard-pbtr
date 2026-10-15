@@ -1,0 +1,31 @@
+# environments
+.venv/
+node_modules
+__pycache__/
+*.pyc
+
+# builds
+frontend/dist/
+*.egg-info/
+
+# state & secrets (never commit)
+data/*.sqlite
+data/*.sqlite-*
+# `.sqlite-*` catches sqlite's own -wal/-shm sidecars, but not a hand-made copy
+# named `shipyard.sqlite.bak-<stamp>` — the dot breaks the match. One was staged
+# by a `git add -A` before a schema migration, which is exactly when someone is
+# most likely to have taken a snapshot and least likely to be reading the stage.
+data/*.sqlite.*
+# The patterns above match only files directly in data/, so the snapshots taken
+# before a risky chart edit were the one piece of state still showing up as
+# untracked — a copy of the same sqlite the line above exists to keep out.
+data/backups/
+# The chart's markdown mirror (SHIPYARD_CHART_EXPORT default).
+data/chart.md
+.env
+.env.*
+!.env.example
+
+# editor/os noise
+.DS_Store
+*.swp

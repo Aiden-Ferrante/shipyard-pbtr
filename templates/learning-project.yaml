@@ -1,0 +1,14 @@
+# A shipyard template: a starting shape, never a standard.
+# Nothing is ever checked against this, and an instantiated copy forgets it.
+name: Learning project
+description: A book or course. The point is what survives, not what was covered.
+problems:
+- title: I can restate it
+  waypoint: the chapter skeleton reconstructed from memory
+  children: []
+- title: I can use it
+  waypoint: something built that I couldn't have built before
+  children: []
+- title: It stuck
+  waypoint: retrievability above 0.9 at thirty days
+  children: []

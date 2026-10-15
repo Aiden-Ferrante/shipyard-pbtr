@@ -1,0 +1,23 @@
+# A shipyard template: a starting shape, never a standard.
+# Nothing is ever checked against this, and an instantiated copy forgets it.
+#
+# The concept pipeline (Projects/0.) Work Flow Frameworks/8.) Concept Pipeline.md):
+# a SECTION of AI 101 is a problem, and its four stages are its waypoints. Apply
+# this under the subject bearing the section already serves — the pipeline is a
+# shape a problem passes through, not a thing problems serve (anchored 2026-09-04).
+# Every waypoint is coverage-shaped, not activity-shaped: something exists, or not.
+name: Concept pipeline
+description: One AI 101 section, from source text to resume artifact. Keyed by the section number (§2.2.2); the fleet checker holds the key.
+problems:
+- title: Source — the section has notes I wrote, not just an outline
+  waypoint: every note under the section's folder carries prose I corrected, and the compiled book renders it; an outline stub counts as absent
+  children: []
+- title: Study — mastery on its concepts is above threshold in Learn Hub
+  waypoint: the section's concepts exist in Learn Hub, have been reviewed on more than the day they were created, and retention reads above 0.9 when spot-checked against what I can actually recall
+  children: []
+- title: Lecture — a video for this section is public
+  waypoint: a shotlist carries this section's key, the master is rendered, and the video is published where someone other than me can watch it
+  children: []
+- title: Capstone — an artifact that uses it exists and is linked from the repo
+  waypoint: a repo's PROJECT.yaml lists this key under covers, and its README points at the artifact that needed the section to exist
+  children: []
