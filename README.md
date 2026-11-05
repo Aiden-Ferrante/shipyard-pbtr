@@ -1,9 +1,25 @@
 # shipyard
 
-A local planning tool that enforces a Plan→Build→Test→Review protocol on a fleet of
-repos: the API refuses to open a cycle on a problem with no observable waypoint, to
-close review while a repo owes uncommitted or unpushed work, and to run a destructive
-write that has not first read its impact.
+**What it is:** a planning service for software work that refuses unsafe actions at
+the API layer, not just in the UI. It won't start work that has no measurable goal,
+won't let you mark work reviewed while code is uncommitted or unpushed, and won't run
+a destructive delete until the caller has first read what it would break.
+
+**Why it matters:** guardrails that live only in a UI (or in a prompt) are suggestions;
+any script, agent or `curl` can walk around them. Here every client, human or AI agent,
+hits the same refusal with a sentence that names the missing fact.
+
+![The board: problems grouped under top-level goals, with one cycle open](docs/screenshots/board.png)
+
+### Words used below
+
+- **Problem**: one unit of intended work, stored in shipyard's database.
+- **Waypoint**: a problem's *observable* success criterion ("pasting the quickstart into
+  a fresh shell produces the documented output"). No waypoint, no work.
+- **Chart**: the tree of problems, from top-level goals down to the repo-sized ones.
+  It is the only data shipyard owns.
+- **Cycle**: one Plan→Build→Test→Review pass on a problem, closed by cutting a git tag.
+- **Fleet**: the set of local git repos shipyard scans (each has a `PROJECT.yaml`).
 
 **Result:** on a fresh clone, 437 backend tests pass (25 skip: browser tests without a
 frontend build, and fleet-integration tests without sibling repos) plus 5 frontend
@@ -13,16 +29,37 @@ cover those three refusals, starting from a planted violation that must be refus
 ## Quickstart
 
 ```bash
-make setup     # backend venv + frontend npm install (needs python3, node)
-make test      # pytest + vitest
-backend/.venv/bin/python -m uvicorn app.main:app --app-dir backend --port 8850
-curl localhost:8850/health
+make setup                 # backend venv + frontend npm install (needs python3, node)
+make test                  # pytest + vitest
+make prod PORT=8850        # build the UI and serve API + UI on http://127.0.0.1:8850
 ```
 
-The API runs standalone. The UI build (`make prod`) imports the shared `fleet-ui`
-package from a sibling checkout (`../fleet-ui`), which is not public yet. It scans
-`~/Desktop/code/*/PROJECT.yaml` by default (`SHIPYARD_CODE_ROOT`); Mission Control on
-:9090 is optional. `scripts/demo-chart.json` is a small fictional chart for the seeder.
+It scans `$SHIPYARD_CODE_ROOT/*/PROJECT.yaml` (default `~/code`); every path is an
+env var (see `.env.example`). The shared header styles and fonts are vendored in
+`frontend/src/vendor/fleet-ui/`, so a fresh clone builds. Mission Control (a separate
+process supervisor) is optional; without it the runtime-status surface is blank.
+
+To try it with fictional data: create the two top-level problems the seed names
+(`Ship a CLI tool`, `Write docs people use`) with `POST /api/problems`, then
+`make chart-seed`. The screenshots in `docs/screenshots/` were taken that way, against
+two throwaway git repos, with Playwright.
+
+### A refusal, verbatim
+
+Opening a second cycle in a repo that already has one open (real output from the
+demo setup above):
+
+```text
+$ curl -X POST localhost:8871/api/problems/591005a781a2/cycles/open \
+    -H 'content-type: application/json' \
+    -d '{"version":"v0.1.0","title":"Quickstart runs as written","repo":"demo-cli"}' \
+    -w '  [HTTP %{http_code}]'
+{"detail":"open refused: demo-cli already has a cycle open (v0.1.0). A record with no
+tag is open — close it by cutting its version, or abort it to the backlog and delete
+the record"}  [HTTP 422]
+```
+
+(The first identical call returned 200 and opened the cycle; JSON wrapped for width.)
 
 ## What went wrong / what I learned
 
@@ -51,8 +88,10 @@ The cycle records are in `docs/cycles/`, the decisions in `docs/adr/`.
    work. See `docs/adr/0005-what-an-open-cycle-is.md`.
 
 The **chart** is the only thing shipyard owns — problems, each with an observable,
-in `data/*.sqlite` and mirrored one-way to `data/chart.md` (`SHIPYARD_CHART_EXPORT`). Everything else is read
-from where it already lives: git, `PROJECT.yaml`, Mission Control, the Learn Hub.
+in `data/*.sqlite` and mirrored one-way to `data/chart.md` (`SHIPYARD_CHART_EXPORT`).
+Everything else is read from where it already lives: git, `PROJECT.yaml`, Mission Control.
+
+![The chart: goals on the left, the problems that serve them to the right](docs/screenshots/chart.png)
 
 There was a third seam, `standards.yaml` — versioned checklist templates over
 spike/tool/product stages. It was deleted in v0.5.0 for scoring repos against a
@@ -63,31 +102,28 @@ A rewritten standard is planned and will not reuse either.
 
 ```mermaid
 flowchart LR
-    subgraph repos["~/Desktop/code/*"]
+    subgraph repos["$SHIPYARD_CODE_ROOT/*"]
         M1[PROJECT.yaml] --- M2[PROJECT.yaml] --- M3[...]
     end
     S[shipyard :8845\nFastAPI + React] -->|scans| repos
     S -->|reads apps.yaml + status| MC[mission control :9090]
-    S -.->|links to| VD[vault-dashboard :8989]
     S -->|the chart, the only thing it owns| DB[(data/shipyard.sqlite)]
     S -->|mirrors one way| CM[data/chart.md]
 ```
 
 ## Branches
 
-`main` is prod — what Mission Control runs, always startable. `dev` is the
-workbench — day-to-day commits. Promote with `git checkout main && git merge dev`,
-run `make test`, restart in MC. See `docs/adr/0002-branching-model.md`.
+`main` is always startable; `dev` is the workbench. Promote with
+`git checkout main && git merge dev` after `make test`. See
+`docs/adr/0002-branching-model.md`. Contributor notes: `CONTRIBUTING.md`.
 
 ## Health & ports
 
-- Port: **8845** (`SHIPYARD_PORT`)
-- `GET /health` → `{ok, checks:{db, code_root, mc}, freshness}` (fleet convention)
-- Config via env with sane defaults: `SHIPYARD_PORT`, `SHIPYARD_CODE_ROOT`,
-  `SHIPYARD_MC_URL`, `SHIPYARD_DB`
+- Port: **8845** by default (`make prod PORT=...`); binds 127.0.0.1, because the API
+  has no auth and can write.
+- `GET /health` → `{ok, checks:{db, code_root, mc}, freshness}`
+- Config via env with neutral defaults: `SHIPYARD_CODE_ROOT`, `SHIPYARD_DB`,
+  `SHIPYARD_MC_URL`, `SHIPYARD_CYCLES_ROOT`, `SHIPYARD_CHART_EXPORT` (`.env.example`).
 
-The only outbound read is Mission Control, and it is read-only and degrades to a
-blank surface when MC is down. The Habits tab is a **link** to vault-dashboard,
-not a read of it: vault-dashboard owns the daily notes, so it owns the habit
-record and how it looks. The link is built from the browser's current hostname,
-so it works over the tailnet as well as locally.
+The only outbound read is Mission Control; it is read-only and degrades to a blank
+surface when MC is down.
