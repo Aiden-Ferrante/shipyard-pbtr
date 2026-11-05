@@ -2,10 +2,17 @@
 
 All notable changes to shipyard are documented here. Format follows
 [Keep a Changelog](https://keepachangelog.com/); versions are cut per completed
-P→B→T→R cycle (see the vault's Development Protocol) — the tag is the transaction
+P→B→T→R cycle — the tag is the transaction
 commit.
 
 ## [Unreleased]
+
+### Changed
+- The frontend builds from a fresh clone: fleet-ui's stylesheet, Geist fonts and a one-entry app registry are vendored under `frontend/src/vendor/fleet-ui/`. The dev proxy follows `SHIPYARD_PORT`.
+- Neutral, env-overridable path defaults: `SHIPYARD_CODE_ROOT=~/code`, `SHIPYARD_MC_APPS_YAML=<code root>/mission-control/apps.yaml`, `SHIPYARD_CYCLES_ROOT=data/cycles`.
+- `make chart-seed` defaults to `scripts/demo-chart.json` (the old default file did not exist).
+- Test client dependency is `httpx2`, which silences starlette's deprecation warning.
+- README leads with a plain-English summary, a glossary and screenshots; `CLAUDE.md`/`AGENTS.md` replaced by `CONTRIBUTING.md`; `.mcp.json` and `.claude/launch.json` removed.
 
 ## [0.36.1] — 2026-09-05 — gates.open answers for the leaf
 
