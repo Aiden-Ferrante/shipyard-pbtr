@@ -67,7 +67,7 @@ check:
 # Put chart nodes authored as markdown into the store, which is where the app reads
 # from (ADR 0003 — the export is one-way, so authoring in the file leaves the app
 # blind to it). Idempotent; `make chart-seed ARGS=--dry-run` shows the plan first.
-SEED ?= scripts/world-awareness.json
+SEED ?= scripts/demo-chart.json
 chart-seed: setup
 	$(PY) scripts/seed_chart.py $(SEED) $(ARGS)
 
