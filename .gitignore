@@ -22,6 +22,8 @@ data/*.sqlite.*
 data/backups/
 # The chart's markdown mirror (SHIPYARD_CHART_EXPORT default).
 data/chart.md
+# Default SHIPYARD_CYCLES_ROOT for out-of-repo cycle records.
+data/cycles/
 .env
 .env.*
 !.env.example
