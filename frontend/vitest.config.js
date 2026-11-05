@@ -1,6 +1,5 @@
-// Deliberately not vite.config.js: that config pulls tailwind and (via the app
-// entry) the fleet-ui sibling clone, neither of which a component test needs —
-// and the sibling may be absent on the machine running the tests.
+// Deliberately not vite.config.js: that config pulls tailwind, which a component
+// test does not need.
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import { FLEET_APPS, appUrl } from '../../../fleet-ui/apps.js'
+import { FLEET_APPS, appUrl } from './vendor/fleet-ui/apps.js'
 import { ArgumentPage } from './argument'
 import { Board } from './board'
 import { DocPage } from './doc'
@@ -96,8 +96,7 @@ export default function App() {
     <div className="min-h-screen bg-bg text-ink">
       <header className="fleet-header">
         <div className={`mx-auto px-6 ${goals ? '' : 'max-w-6xl'}`}>
-          {/* Tier one: which of the four apps you are in. Identical everywhere,
-              list from code/fleet-ui/apps.js. */}
+          {/* Tier one: which app you are in. The list is src/vendor/fleet-ui/apps.js. */}
           <nav className="fleet-apps" aria-label="Fleet">
             <p className="fleet-wordmark">fleet</p>
             {FLEET_APPS.map(a => a.id === 'shipyard' ? (

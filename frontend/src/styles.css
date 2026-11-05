@@ -2,7 +2,7 @@
 /* The fleet header (.fleet-apps / .fleet-sections) and its tokens. Shipyard
    keeps its own @theme below — it is the reference these were lifted from —
    but the chrome is shared so all four apps read as one product. */
-@import "../../../fleet-ui/fleet.css";
+@import "./vendor/fleet-ui/fleet.css";
 
 /* Tailwind v4 is CSS-first: this @theme block IS the config — there is no
    tailwind.config.js. Every token below also becomes a utility, so `--color-warn`

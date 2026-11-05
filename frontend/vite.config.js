@@ -2,16 +2,15 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
+// The dev server proxies to the API port (SHIPYARD_PORT, default 8845).
+const API = `http://localhost:${process.env.SHIPYARD_PORT || 8845}`
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {
-      '/api': 'http://localhost:8845',
-      '/health': 'http://localhost:8845',
+      '/api': API,
+      '/health': API,
     },
-    // styles.css and App.jsx import code/fleet-ui, which lives above this repo.
-    // The prod build resolves it; the dev server refuses without being told, and
-    // the failure is a blank unstyled page.
-    fs: { allow: ['..', '../../fleet-ui'] },
   },
 })

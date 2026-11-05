@@ -1,0 +1,602 @@
+/* fleet.css — vendored from the author's fleet-ui library (tokens, header, class kit)
+ * so this repo builds from a fresh clone. Unused app-specific blocks removed.
+ *
+ * One visual contract for the admin surfaces. Version 2 (2026-09-04).
+ *
+ * WHAT THIS IS. Tokens, the two-tier header, and — since v2 — a CLASS KIT: the
+ * dozen primitives every app had been re-inventing (button, field, table, chip,
+ * status, card, dialog, drawer, toast, skeleton, tabs, the three async states).
+ * Plain CSS, because the fleet is Tailwind v4, Tailwind v3, hand-written CSS and
+ * Python f-strings that emit <style>; custom properties and classes are the only
+ * layer all four can read. A Tailwind app maps tokens into @theme and uses the
+ * classes as-is; a plain-CSS app aliases its names onto the tokens; a Python app
+ * inlines this file verbatim and serves ./fonts.
+ *
+ * DIRECTION (2026-09-04): an instrument
+ * panel. Dark only. Dense. Mono for every machine fact. Colour is a signal, never
+ * decoration — accent means "you can act here", ok/warn/danger mean state, the
+ * categorical hues mean "different from its neighbour", nothing else is coloured.
+ * Depth is one zinc step and a 1px rule; there are no shadows. Legibility beats
+ * restraint: a low-chroma palette was tried once and reverted (below).
+ *
+ * HOW TO ADOPT. Tokens: alias, never rename (`--bg: var(--fleet-bg)`). Classes:
+ * use them by name and delete the local copy — an app that keeps its own .btn
+ * beside .fleet-btn has two buttons, and the checker treats a local primitive
+ * as drift. KIT.md is the one-page spec; gallery.html renders every class.
+ *
+ * WHAT IS NOT HERE. Layout, product identity, and anything a surface is
+ * entitled to disagree about.
+ */
+
+/* --- Faces. One sans, one mono, shipped here so all six tabs share them; a
+       different typeface is the strongest signal that you have left the site,
+       which is exactly why it must be the SAME one everywhere. Variable fonts,
+       ~70KB each, SIL OFL 1.1 (fonts/LICENSE). Relative URLs: a Vite app
+       resolves them against this file; a Python app serves ./fonts at /fonts. */
+@font-face {
+  font-family: "Geist";
+  src: url("fonts/Geist-Variable.woff2") format("woff2");
+  font-weight: 100 900; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Geist Mono";
+  src: url("fonts/GeistMono-Variable.woff2") format("woff2");
+  font-weight: 100 900; font-style: normal; font-display: swap;
+}
+
+:root {
+  color-scheme: dark;
+
+  /* --- Neutrals (Tailwind zinc, spelled out so no build step is required) --- */
+  --fleet-zinc-50: #fafafa;
+  --fleet-zinc-100: #f4f4f5;
+  --fleet-zinc-200: #e4e4e7;
+  --fleet-zinc-300: #d4d4d8;
+  --fleet-zinc-400: #a1a1aa;
+  --fleet-zinc-500: #71717a;
+  --fleet-zinc-600: #52525b;
+  --fleet-zinc-700: #3f3f46;
+  --fleet-zinc-800: #27272a;
+  --fleet-zinc-900: #18181b;
+  --fleet-zinc-950: #09090b;
+
+  /* --- Ground and ink. One mode. Depth is one step of this ramp, never a shadow. --- */
+  --fleet-bg: var(--fleet-zinc-950);
+  --fleet-surface: var(--fleet-zinc-900);
+  --fleet-surface-2: var(--fleet-zinc-800);
+  --fleet-border: var(--fleet-zinc-800);
+  --fleet-hairline: color-mix(in srgb, var(--fleet-border) 60%, transparent);
+  --fleet-text: var(--fleet-zinc-100);
+  /* zinc-300, not the light-mode mirror's zinc-600: captions a step darker were
+     legible on paper and guesswork on screen. */
+  --fleet-text-dim: var(--fleet-zinc-300);
+  /* zinc-400, not 500: faint is still READ (labels, captions, column heads), and
+     500 measured 3.7:1 on the surface (2026-09-04). 400 is 6.9:1 and still two
+     clear steps below dim. */
+  --fleet-text-faint: var(--fleet-zinc-400);
+  --fleet-scrim: rgba(9, 9, 11, 0.6);
+
+  /* --- Semantics. One oklch value per meaning for FILLS, borders and washes.
+         These are NOT safe as text: measured 2026-09-04 at micro size, accent
+         was 2.8:1 on the surface. The `-text` tokens are the same hue lifted
+         for reading (>= 4.5:1 on zinc-900 and zinc-950, measured); use those
+         for any coloured word, chip label or link. --- */
+  --fleet-accent: oklch(0.65 0.19 250);
+  --fleet-accent-dim: oklch(0.55 0.19 250);
+  --fleet-ok: oklch(0.72 0.17 155);
+  --fleet-warn: oklch(0.78 0.15 80);
+  --fleet-danger: oklch(0.65 0.21 25);
+
+  --fleet-accent-text: oklch(0.80 0.15 250);
+  --fleet-ok-text: oklch(0.80 0.15 155);
+  --fleet-warn-text: oklch(0.84 0.14 80);
+  --fleet-danger-text: oklch(0.78 0.16 25);
+
+  /* Ink for a label sitting ON one of those fills — a primary button, a solid
+     badge. zinc-50 rather than raw white so it stays on the ramp. */
+  --fleet-on-accent: var(--fleet-zinc-50);
+
+  /* --- Categorical, not status. For telling N things of the same kind apart
+         (which daemon holds which slice of memory) when none of them is good,
+         bad or actionable. Hues sit between the four status hues so a slice
+         never reads as ok/warn/danger; the fourth is neutral because a fifth
+         hue would start colliding with status. Never a status token as a
+         category, never these as a status. --- */
+  --fleet-cat-1: oklch(0.74 0.14 290);
+  --fleet-cat-2: oklch(0.74 0.11 205);
+  --fleet-cat-3: oklch(0.74 0.15 340);
+  --fleet-cat-4: var(--fleet-text-faint);
+
+  /* Lifecycle vocabulary. A low-chroma version was tried and reverted: at 0.07
+     the three were indistinguishable from each other and from body grey, which
+     costs legibility to buy a restraint nobody asked for. Density is a
+     typography problem, and the type scale below is where it gets solved. */
+  --fleet-stage-spike: oklch(0.75 0.15 75);
+  --fleet-stage-tool: oklch(0.68 0.16 245);
+  --fleet-stage-product: oklch(0.72 0.17 155);
+
+  /* --- THE TYPE SCALE. Six steps are the whole vocabulary; a raw 11px anywhere
+         is a bug, not a choice. Hierarchy is carried by size and weight — grey
+         level is the weakest channel and the first to collapse under density. --- */
+  --fleet-text-micro: 0.6875rem;    /* 11px   — chips, counts, meta */
+  --fleet-text-meta: 0.78125rem;    /* 12.5px — secondary lines */
+  --fleet-text-body: 0.875rem;      /* 14px   — descriptions, prose in chrome */
+  --fleet-text-title: 0.9375rem;    /* 15px   — card titles */
+  --fleet-text-section: 1.1875rem;  /* 19px   — a section heading */
+  --fleet-text-page: 1.625rem;      /* 26px   — the name of the surface */
+  /* The label register: micro, uppercase, tracked. Four apps had four
+     trackings (.08/.09/.12em) for one job; this is the one. */
+  --fleet-label-tracking: 0.08em;
+
+  /* --- Space. 4px base. Paddings and gaps come from here, not from taste. --- */
+  --fleet-space-1: 0.25rem;
+  --fleet-space-2: 0.5rem;
+  --fleet-space-3: 0.75rem;
+  --fleet-space-4: 1rem;
+  --fleet-space-5: 1.25rem;
+  --fleet-space-6: 1.5rem;
+  --fleet-space-7: 2rem;
+  --fleet-space-8: 3rem;
+
+  /* Instrument, not app store: tight corners. */
+  --fleet-radius: 0.5rem;
+  --fleet-radius-sm: 0.25rem;
+
+  /* Motion: two durations and one curve. Reduced-motion clamps all of it. */
+  --fleet-dur-fast: 120ms;
+  --fleet-dur-panel: 220ms;
+  --fleet-ease-panel: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Stacking, named so no app invents a 9999. */
+  --fleet-z-header: 30;
+  --fleet-z-drawer: 40;
+  --fleet-z-dialog: 50;
+  --fleet-z-toast: 60;
+
+  /* The header's pinned height (38 + 49 + 1px border). Anything sticky below
+     the header offsets by this, never by a literal 88px. */
+  --fleet-header-h: 88px;
+  /* Minimum hit target for a finger. Applied under (pointer: coarse). */
+  --fleet-hit: 40px;
+
+  /* Sans for prose, mono for every machine fact — ports, pids, versions, paths,
+     counts. In a tooling UI that split IS the typography. System stacks stay
+     as fallbacks while the face loads. */
+  --fleet-font-sans: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", "Noto Sans", Arial, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --fleet-font-mono: "Geist Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo,
+    Consolas, "Liberation Mono", monospace;
+}
+
+/* Motion is opt-in for people who want it and absent for people who don't. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* --- Base. ---------------------------------------------------------------- */
+body {
+  margin: 0;
+  background: var(--fleet-bg); color: var(--fleet-text);
+  font-family: var(--fleet-font-sans);
+  font-size: var(--fleet-text-body); line-height: 1.5;
+  /* Counts and dates sit in columns all over these UIs — proportional digits
+     make them jitter as they update. */
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+/* One focus ring for the fleet. Every focusable thing, no exceptions, no app
+   copy. `outline: none` anywhere else is drift (check.sh). */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--fleet-accent); outline-offset: 2px;
+  border-radius: var(--fleet-radius-sm);
+}
+::selection { background: color-mix(in srgb, var(--fleet-accent) 35%, transparent); }
+
+/* --- Type scale as classes, for apps with no utility layer. ---------------- */
+.t-micro   { font-size: var(--fleet-text-micro);   line-height: 1.4; }
+.t-meta    { font-size: var(--fleet-text-meta);    line-height: 1.45; }
+.t-body    { font-size: var(--fleet-text-body);    line-height: 1.6; }
+.t-title   { font-size: var(--fleet-text-title);   line-height: 1.35; font-weight: 600; }
+.t-section { font-size: var(--fleet-text-section); line-height: 1.25; font-weight: 600; }
+.t-page    { font-size: var(--fleet-text-page);    line-height: 1.15; font-weight: 600;
+             letter-spacing: -0.01em; }
+/* A machine fact: apply to the leaf span holding a port, pid, sha, path or
+   count — not to a whole row. 0.94em because mono runs optically larger than
+   the sans at equal size; leaf-only application keeps the em from compounding. */
+.t-num     { font-family: var(--fleet-font-mono); font-size: 0.94em;
+             font-variant-numeric: tabular-nums; }
+/* The label register: a column head, a facet name, a section eyebrow. */
+.fleet-label {
+  font-size: var(--fleet-text-micro); line-height: 1.4; font-weight: 500;
+  text-transform: uppercase; letter-spacing: var(--fleet-label-tracking);
+  color: var(--fleet-text-faint);
+}
+.fleet-dim { color: var(--fleet-text-dim); }
+.fleet-faint { color: var(--fleet-text-faint); }
+
+/* --- The shell. -----------------------------------------------------------
+   This is the part that makes separate apps read as one site: the chrome sits
+   in the same place, at the same height, with the nav in the same corner, so
+   moving between ports does not move the furniture. TWO TIERS: tier one is the
+   fleet (which app), tier two is this app's sections. Switching app and
+   switching page are different acts, so they get different rows. */
+.fleet-header {
+  position: sticky; top: 0; z-index: var(--fleet-z-header);
+  border-bottom: 1px solid var(--fleet-border);
+  background: color-mix(in srgb, var(--fleet-bg) 85%, transparent);
+  backdrop-filter: blur(12px);
+}
+.fleet-header-inner { margin: 0 auto; max-width: 72rem; padding: 0 var(--fleet-space-6); }
+
+/* THE TIERS ARE PINNED. The 2026-08-15 audit measured four header heights
+   across five apps (72/82/88/121px). These minimums are shipyard's measured
+   proportions (38 + 49 + 1px border = 88px = --fleet-header-h). min-height,
+   not height, so a wrapped tier on a narrow screen grows instead of clipping. */
+.fleet-apps {
+  display: flex; align-items: center; gap: var(--fleet-space-1);
+  box-sizing: border-box; min-height: 38px;
+  padding: 0.4rem 0 0;
+  border-bottom: 1px solid var(--fleet-hairline);
+}
+.fleet-wordmark {
+  font-size: var(--fleet-text-micro); text-transform: uppercase;
+  letter-spacing: 0.14em; color: var(--fleet-text-faint);
+  margin: 0 0.85rem 0 0; white-space: nowrap;
+}
+.fleet-app {
+  font: inherit; font-size: var(--fleet-text-meta);
+  background: none; border: 0; cursor: pointer; text-decoration: none;
+  color: var(--fleet-text-faint); white-space: nowrap;
+  padding: 0.3rem 0.6rem; border-radius: var(--fleet-radius-sm) var(--fleet-radius-sm) 0 0;
+  border-bottom: 2px solid transparent;
+  transition: color var(--fleet-dur-fast) ease, background var(--fleet-dur-fast) ease;
+}
+.fleet-app:hover { color: var(--fleet-text); background: var(--fleet-surface-2); }
+/* The current app is stated, not linked — you are already here. */
+.fleet-app[aria-current="page"] {
+  color: var(--fleet-text); font-weight: 550;
+  border-bottom-color: var(--fleet-accent);
+}
+
+.fleet-sections {
+  display: flex; align-items: center; gap: var(--fleet-space-4); flex-wrap: wrap;
+  box-sizing: border-box; min-height: 49px;
+  padding: 0.6rem 0 0.7rem;
+}
+.fleet-brand {
+  font-size: var(--fleet-text-title); font-weight: 600;
+  letter-spacing: -0.01em; margin: 0 var(--fleet-space-2) 0 0; color: var(--fleet-text);
+}
+.fleet-sub { font-size: var(--fleet-text-meta); color: var(--fleet-text-faint); margin: 0; }
+
+.fleet-nav { display: flex; align-items: center; gap: var(--fleet-space-4); }
+.fleet-nav a, .fleet-nav button {
+  font: inherit; font-size: var(--fleet-text-meta);
+  background: none; border: 0; padding: 0; cursor: pointer; white-space: nowrap;
+  color: var(--fleet-text-faint); text-decoration: none;
+  transition: color var(--fleet-dur-fast) ease;
+}
+.fleet-nav a:hover, .fleet-nav button:hover { color: var(--fleet-accent-text); }
+.fleet-nav .active { color: var(--fleet-text); font-weight: 500; }
+
+/* Whatever this app alone offers — search, system stats. */
+.fleet-actions { margin-left: auto; display: flex; align-items: center; gap: var(--fleet-space-3); }
+
+.fleet-nav-sep { width: 1px; height: 1rem; background: var(--fleet-border); }
+.fleet-ext::after { content: " ↗"; font-size: 0.9em; }
+
+.fleet-main { margin: 0 auto; max-width: 72rem; padding: var(--fleet-space-7) var(--fleet-space-6); }
+
+/* --- Surfaces. ------------------------------------------------------------ */
+.fleet-card {
+  border: 1px solid var(--fleet-border);
+  border-radius: var(--fleet-radius);
+  background: var(--fleet-surface);
+  padding: var(--fleet-space-4);
+}
+.fleet-card-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: var(--fleet-space-3); margin-bottom: var(--fleet-space-2);
+}
+.fleet-card-head > h2, .fleet-card-head > h3 { margin: 0; font-size: var(--fleet-text-title); font-weight: 600; }
+.fleet-sep { border: 0; border-top: 1px solid var(--fleet-border); margin: var(--fleet-space-4) 0; }
+
+/* A chip is a fact with a tone, not a control. Text mandatory: tone alone is
+   never the channel. */
+.fleet-chip {
+  display: inline-flex; align-items: center; gap: 0.35em;
+  border: 1px solid var(--fleet-border); border-radius: var(--fleet-radius-sm);
+  padding: 0.1rem 0.45rem; white-space: nowrap;
+  font-size: var(--fleet-text-micro); line-height: 1.4; color: var(--fleet-text-dim);
+  background: var(--fleet-surface);
+}
+.fleet-chip.ok     { border-color: color-mix(in srgb, var(--fleet-ok) 35%, transparent);
+                     background: color-mix(in srgb, var(--fleet-ok) 10%, transparent);
+                     color: var(--fleet-ok-text); }
+.fleet-chip.warn   { border-color: color-mix(in srgb, var(--fleet-warn) 35%, transparent);
+                     background: color-mix(in srgb, var(--fleet-warn) 10%, transparent);
+                     color: var(--fleet-warn-text); }
+.fleet-chip.danger { border-color: color-mix(in srgb, var(--fleet-danger) 35%, transparent);
+                     background: color-mix(in srgb, var(--fleet-danger) 10%, transparent);
+                     color: var(--fleet-danger-text); }
+.fleet-chip.accent { border-color: color-mix(in srgb, var(--fleet-accent) 35%, transparent);
+                     background: color-mix(in srgb, var(--fleet-accent) 10%, transparent);
+                     color: var(--fleet-accent-text); }
+.fleet-chip.mono   { font-family: var(--fleet-font-mono); font-size: calc(var(--fleet-text-micro) * 0.94); }
+
+/* ONE status renderer. Glyph AND word — shape carries the state in greyscale,
+   colour reinforces it, the word settles it. disc = ok/running, ring = warn/
+   starting, square = off/stopped/neutral, triangle = danger. Four shapes for
+   four meanings; a fifth state gets a word, not a new shape. */
+.fleet-status {
+  display: inline-flex; align-items: center; gap: 0.45em;
+  font-size: var(--fleet-text-micro); line-height: 1.4; color: var(--fleet-text-dim);
+  white-space: nowrap;
+}
+.fleet-status::before {
+  content: ""; display: inline-block; flex: none;
+  width: 0.55em; height: 0.55em; box-sizing: border-box;
+  border-radius: 50%; background: var(--fleet-text-faint);
+}
+.fleet-status.ok::before     { background: var(--fleet-ok); }
+.fleet-status.ok             { color: var(--fleet-ok-text); }
+.fleet-status.warn::before   { background: transparent; border: 0.14em solid var(--fleet-warn); }
+.fleet-status.warn           { color: var(--fleet-warn-text); }
+.fleet-status.off::before    { border-radius: 1px; background: var(--fleet-text-faint); }
+.fleet-status.danger::before { border-radius: 0; background: var(--fleet-danger);
+                               clip-path: polygon(50% 0, 100% 100%, 0 100%); width: 0.65em; height: 0.6em; }
+.fleet-status.danger         { color: var(--fleet-danger-text); }
+.fleet-status.busy::before   { background: transparent; border: 0.14em solid var(--fleet-accent);
+                               border-right-color: transparent; animation: fleet-spin 0.9s linear infinite; }
+@keyframes fleet-spin { to { transform: rotate(360deg); } }
+
+/* Key/value facts, the dense way: label column, value column, mono values. */
+.fleet-kv {
+  display: grid; grid-template-columns: max-content minmax(0, 1fr);
+  gap: var(--fleet-space-1) var(--fleet-space-4); margin: 0;
+  font-size: var(--fleet-text-meta);
+}
+.fleet-kv dt { color: var(--fleet-text-faint); margin: 0; }
+.fleet-kv dd { margin: 0; color: var(--fleet-text); overflow-wrap: anywhere; }
+
+/* A meter is a fact: neutral at rest, coloured only when the level MEANS
+   something (.warn/.danger). Never accent — that would say "press me". */
+.fleet-meter {
+  display: block; width: 100%; height: 4px; border-radius: 2px; overflow: hidden;
+  background: var(--fleet-surface-2);
+}
+.fleet-meter-fill {
+  display: block; height: 100%; border-radius: 2px;
+  background: color-mix(in srgb, var(--fleet-text) 45%, transparent);
+  transition: width var(--fleet-dur-panel) ease;
+}
+.fleet-meter-fill.ok     { background: var(--fleet-ok); }
+.fleet-meter-fill.warn   { background: var(--fleet-warn); }
+.fleet-meter-fill.danger { background: var(--fleet-danger); }
+
+/* --- Controls. ------------------------------------------------------------ */
+.fleet-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.4em;
+  font: inherit; font-size: var(--fleet-text-meta); font-weight: 500; line-height: 1.2;
+  padding: 0.35rem 0.7rem; border-radius: var(--fleet-radius-sm);
+  border: 1px solid var(--fleet-border); background: var(--fleet-surface);
+  color: var(--fleet-text); cursor: pointer; text-decoration: none; white-space: nowrap;
+  transition: border-color var(--fleet-dur-fast) ease, background var(--fleet-dur-fast) ease, color var(--fleet-dur-fast) ease;
+}
+.fleet-btn:hover:not(:disabled) { border-color: var(--fleet-accent); color: var(--fleet-text); }
+.fleet-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.fleet-btn-sm { font-size: var(--fleet-text-micro); padding: 0.2rem 0.5rem; }
+.fleet-btn-ghost { border-color: transparent; background: transparent; color: var(--fleet-text-dim); }
+.fleet-btn-ghost:hover:not(:disabled) { background: var(--fleet-surface-2); border-color: transparent; }
+/* The one filled button: the action this screen exists for. */
+.fleet-btn-accent { background: var(--fleet-accent); border-color: var(--fleet-accent); color: var(--fleet-on-accent); }
+.fleet-btn-accent:hover:not(:disabled) { background: var(--fleet-accent-dim); border-color: var(--fleet-accent-dim); }
+/* Toned outlines: the colour says what the click MEANS (start / caution / destroy). */
+.fleet-btn-ok     { border-color: color-mix(in srgb, var(--fleet-ok) 45%, transparent);     color: var(--fleet-ok-text); }
+.fleet-btn-ok:hover:not(:disabled)     { border-color: var(--fleet-ok);     background: color-mix(in srgb, var(--fleet-ok) 10%, transparent); }
+.fleet-btn-warn   { border-color: color-mix(in srgb, var(--fleet-warn) 45%, transparent);   color: var(--fleet-warn-text); }
+.fleet-btn-warn:hover:not(:disabled)   { border-color: var(--fleet-warn);   background: color-mix(in srgb, var(--fleet-warn) 10%, transparent); }
+.fleet-btn-danger { border-color: color-mix(in srgb, var(--fleet-danger) 45%, transparent); color: var(--fleet-danger-text); }
+.fleet-btn-danger:hover:not(:disabled) { border-color: var(--fleet-danger); background: color-mix(in srgb, var(--fleet-danger) 10%, transparent); }
+.fleet-btn-group { display: inline-flex; gap: var(--fleet-space-2); flex-wrap: wrap; align-items: center; }
+
+/* One look for input, select and textarea. A field is a control, so its
+   focus is the accent ring like everything else. */
+.fleet-field {
+  font: inherit; font-size: var(--fleet-text-body); line-height: 1.4;
+  display: block; width: 100%; box-sizing: border-box;
+  padding: 0.4rem 0.6rem; border-radius: var(--fleet-radius-sm);
+  border: 1px solid var(--fleet-border); background: var(--fleet-bg); color: var(--fleet-text);
+  transition: border-color var(--fleet-dur-fast) ease;
+}
+.fleet-field:hover { border-color: var(--fleet-zinc-700); }
+.fleet-field::placeholder { color: var(--fleet-text-faint); }
+.fleet-field:disabled { opacity: 0.5; }
+textarea.fleet-field { resize: vertical; min-height: 4.5rem; }
+select.fleet-field { appearance: none; padding-right: 1.8rem;
+  background-image: linear-gradient(45deg, transparent 50%, var(--fleet-text-faint) 50%),
+                    linear-gradient(135deg, var(--fleet-text-faint) 50%, transparent 50%);
+  background-position: calc(100% - 0.9rem) 55%, calc(100% - 0.6rem) 55%;
+  background-size: 0.3rem 0.3rem; background-repeat: no-repeat; }
+.fleet-field.mono { font-family: var(--fleet-font-mono); font-size: calc(var(--fleet-text-body) * 0.94); }
+/* A label owns its field: stack, meta size, dim. */
+.fleet-form-row { display: flex; flex-direction: column; gap: 0.3rem;
+  font-size: var(--fleet-text-meta); color: var(--fleet-text-dim); }
+.fleet-form-row > .fleet-field { color: var(--fleet-text); }
+
+/* Keys, as typed. */
+kbd, .fleet-kbd {
+  font-family: var(--fleet-font-mono); font-size: var(--fleet-text-micro); line-height: 1.4;
+  padding: 0 0.35em; border: 1px solid var(--fleet-border); border-bottom-width: 2px;
+  border-radius: var(--fleet-radius-sm); color: var(--fleet-text-dim); background: var(--fleet-surface);
+}
+
+/* Tabs switch a VIEW of the same thing; the nav switches sections. */
+.fleet-tabs { display: flex; gap: var(--fleet-space-1); border-bottom: 1px solid var(--fleet-border); overflow-x: auto; scrollbar-width: none; }
+.fleet-tabs::-webkit-scrollbar { display: none; }
+.fleet-tab {
+  font: inherit; font-size: var(--fleet-text-meta); background: none; border: 0; cursor: pointer;
+  padding: 0.4rem 0.7rem; margin-bottom: -1px; white-space: nowrap; text-decoration: none;
+  color: var(--fleet-text-faint); border-bottom: 2px solid transparent;
+  transition: color var(--fleet-dur-fast) ease;
+}
+.fleet-tab:hover { color: var(--fleet-text); }
+.fleet-tab[aria-selected="true"], .fleet-tab.active { color: var(--fleet-text); border-bottom-color: var(--fleet-accent); }
+
+/* --- Tables. --------------------------------------------------------------
+   A table is for scanning down a column (fleet/CONVENTIONS.md §1). It lives in
+   a .fleet-table-wrap — the one legal horizontal scroll on a phone — so the
+   page itself never scrolls sideways. */
+.fleet-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%;
+  border: 1px solid var(--fleet-border); border-radius: var(--fleet-radius); background: var(--fleet-surface); }
+.fleet-table { width: 100%; border-collapse: collapse; font-size: var(--fleet-text-meta); }
+.fleet-table th {
+  text-align: left; font-size: var(--fleet-text-micro); font-weight: 500;
+  text-transform: uppercase; letter-spacing: var(--fleet-label-tracking);
+  color: var(--fleet-text-faint); padding: 0.45rem 0.7rem; white-space: nowrap;
+  border-bottom: 1px solid var(--fleet-border);
+}
+.fleet-table td { padding: 0.45rem 0.7rem; border-top: 1px solid var(--fleet-hairline); vertical-align: top; }
+.fleet-table tbody tr:first-child td { border-top: 0; }
+.fleet-table tbody tr:hover td { background: color-mix(in srgb, var(--fleet-surface-2) 55%, transparent); }
+.fleet-table td.num, .fleet-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.fleet-table td.num { font-family: var(--fleet-font-mono); font-size: 0.94em; }
+.fleet-table.dense th, .fleet-table.dense td { padding: 0.25rem 0.5rem; }
+.fleet-table-wrap.plain { border: 0; border-radius: 0; background: transparent; }
+
+/* --- Overlays. One scrim, two panels. --------------------------------------
+   The panel carries role="dialog" aria-modal; Escape and a click on the scrim
+   close it; focus returns to the opener. That is the app's job — the kit only
+   draws it. */
+.fleet-dialog-scrim {
+  position: fixed; inset: 0; z-index: var(--fleet-z-dialog);
+  background: var(--fleet-scrim);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 12vh var(--fleet-space-4) var(--fleet-space-4);
+  animation: fleet-fade var(--fleet-dur-fast) ease-out both;
+}
+.fleet-dialog {
+  width: min(40rem, 100%); max-height: 84vh; overflow: auto; box-sizing: border-box;
+  background: var(--fleet-surface); border: 1px solid var(--fleet-border);
+  border-radius: var(--fleet-radius); padding: var(--fleet-space-4);
+  animation: fleet-rise var(--fleet-dur-panel) var(--fleet-ease-panel) both;
+}
+.fleet-dialog.narrow { width: min(26rem, 100%); }
+.fleet-dialog-title { margin: 0 0 var(--fleet-space-2); font-size: var(--fleet-text-title); font-weight: 600; }
+.fleet-dialog-actions { display: flex; gap: var(--fleet-space-2); justify-content: flex-end; margin-top: var(--fleet-space-4); }
+/* The drawer enters from the right; the page behind stays put so you never
+   lose your place. Full-width under 760. */
+.fleet-drawer-scrim { position: fixed; inset: 0; z-index: var(--fleet-z-drawer); background: var(--fleet-scrim);
+  animation: fleet-fade var(--fleet-dur-fast) ease-out both; }
+.fleet-drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: var(--fleet-z-drawer);
+  width: min(28rem, 100vw); box-sizing: border-box; overflow: auto;
+  background: var(--fleet-surface); border-left: 1px solid var(--fleet-border);
+  padding: var(--fleet-space-4);
+  animation: fleet-slide var(--fleet-dur-panel) var(--fleet-ease-panel) both;
+}
+@keyframes fleet-fade  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fleet-rise  { from { transform: translateY(0.5rem); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes fleet-slide { from { transform: translateX(1.5rem); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* Toasts: the outcome of a mutation, dismissible, never the only record of an
+   error (the editing context keeps its own). Region is aria-live="polite". */
+.fleet-toast-region {
+  position: fixed; right: var(--fleet-space-4); bottom: var(--fleet-space-4); z-index: var(--fleet-z-toast);
+  display: flex; flex-direction: column; gap: var(--fleet-space-2); max-width: min(24rem, calc(100vw - 2rem));
+}
+.fleet-toast {
+  display: flex; align-items: flex-start; gap: var(--fleet-space-3);
+  padding: var(--fleet-space-3) var(--fleet-space-4);
+  background: var(--fleet-surface); border: 1px solid var(--fleet-border); border-radius: var(--fleet-radius);
+  font-size: var(--fleet-text-meta); color: var(--fleet-text);
+  animation: fleet-rise var(--fleet-dur-panel) var(--fleet-ease-panel) both;
+}
+.fleet-toast.ok     { border-color: color-mix(in srgb, var(--fleet-ok) 45%, transparent); }
+.fleet-toast.warn   { border-color: color-mix(in srgb, var(--fleet-warn) 45%, transparent); }
+.fleet-toast.danger { border-color: color-mix(in srgb, var(--fleet-danger) 45%, transparent); }
+.fleet-toast > .fleet-btn { margin-left: auto; }
+
+/* --- Async states. Owed per surface kind (fleet/CONVENTIONS.md §2). ---------- */
+.fleet-empty, .fleet-loading, .fleet-error {
+  display: flex; align-items: center; gap: var(--fleet-space-2);
+  padding: var(--fleet-space-4); border: 1px dashed var(--fleet-border); border-radius: var(--fleet-radius);
+  font-size: var(--fleet-text-meta); color: var(--fleet-text-faint);
+}
+.fleet-loading::before { content: ""; width: 0.6em; height: 0.6em; border-radius: 50%; flex: none;
+  border: 0.14em solid var(--fleet-text-faint); border-right-color: transparent;
+  animation: fleet-spin 0.9s linear infinite; }
+.fleet-error { border-style: solid; border-color: color-mix(in srgb, var(--fleet-danger) 45%, transparent); color: var(--fleet-danger-text); }
+.fleet-error .t-num { color: var(--fleet-text-dim); }
+/* An inline callout inside a card: a warning about this thing, or its error.
+   Tone is the border and the ink; the words carry the meaning. */
+.fleet-note {
+  font-size: var(--fleet-text-meta); line-height: 1.45;
+  padding: var(--fleet-space-2) var(--fleet-space-3); border-radius: var(--fleet-radius-sm);
+  border: 1px solid var(--fleet-border); background: var(--fleet-surface-2); color: var(--fleet-text-dim);
+  display: flex; align-items: flex-start; gap: var(--fleet-space-2);
+}
+.fleet-note.warn   { border-color: color-mix(in srgb, var(--fleet-warn) 40%, transparent);   background: color-mix(in srgb, var(--fleet-warn) 8%, transparent);   color: var(--fleet-warn-text); }
+.fleet-note.danger { border-color: color-mix(in srgb, var(--fleet-danger) 40%, transparent); background: color-mix(in srgb, var(--fleet-danger) 8%, transparent); color: var(--fleet-danger-text); }
+.fleet-note > .fleet-btn { margin-left: auto; }
+
+/* A skeleton holds the shape of what is coming; one shimmer, reduced-motion safe. */
+.fleet-skeleton {
+  display: block; height: 1em; border-radius: var(--fleet-radius-sm);
+  background: linear-gradient(90deg, var(--fleet-surface-2) 25%, var(--fleet-zinc-700) 50%, var(--fleet-surface-2) 75%);
+  background-size: 200% 100%; animation: fleet-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes fleet-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+/* A staleness marker for polled surfaces: the data clock, never the render clock. */
+.fleet-stale { color: var(--fleet-warn-text); }
+
+/* A log is a machine fact at length. Mono, dark, scrolls inside itself; .wrap
+   toggles soft wrap for reading. */
+.fleet-log {
+  margin: 0; padding: var(--fleet-space-3); overflow: auto; max-height: 60vh;
+  font-family: var(--fleet-font-mono); font-size: var(--fleet-text-meta); line-height: 1.5;
+  background: var(--fleet-bg); border: 1px solid var(--fleet-border); border-radius: var(--fleet-radius);
+  color: var(--fleet-text-dim); white-space: pre; tab-size: 4;
+}
+.fleet-log.wrap { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* --- Breakpoints: 420 · 760 · 1100. --------------------------------------
+   Under 760 the header's two rows scroll sideways inside themselves, gutters
+   tighten, and the page never scrolls sideways. Under 420 the sub-line goes. */
+@media (max-width: 760px) {
+  .fleet-header-inner { padding: 0 var(--fleet-space-4); }
+  /* The header keeps its 88px on a phone: each row scrolls sideways inside
+     itself instead of wrapping (a wrapped header measured 207px at 375 — a
+     quarter of the screen before any content). */
+  .fleet-apps, .fleet-nav { overflow-x: auto; scrollbar-width: none; }
+  .fleet-apps::-webkit-scrollbar, .fleet-nav::-webkit-scrollbar { display: none; }
+  /* Tight vertical padding so a 40px finger target (below) still lands the
+     row at 49px and the header at its 88. */
+  .fleet-sections { gap: var(--fleet-space-3); flex-wrap: nowrap; padding: var(--fleet-space-1) 0; }
+  .fleet-nav { flex: 1 1 auto; min-width: 0; }
+  .fleet-sub { display: none; }
+  .fleet-actions { flex: none; }
+  .fleet-main { padding: var(--fleet-space-4); }
+  .fleet-drawer { width: 100vw; border-left: 0; }
+  .fleet-dialog-scrim { padding: var(--fleet-space-4); align-items: flex-end; }
+  .fleet-toast-region { left: var(--fleet-space-4); right: var(--fleet-space-4); max-width: none; }
+}
+@media (max-width: 420px) {
+  .fleet-wordmark { display: none; }
+}
+/* Fingers: every control grows to the hit target; hover-only affordances are
+   not the only path (that is the app's job — this just makes the target real). */
+@media (pointer: coarse) {
+  .fleet-btn, .fleet-tab, .fleet-nav a, .fleet-nav button { min-height: var(--fleet-hit); }
+  .fleet-field { min-height: var(--fleet-hit); }
+  /* The apps row is pinned at 38px; the tab fills it edge to edge instead of
+     growing past it (38px of finger is enough for a text tab). */
+  .fleet-app { min-height: 38px; }
+  .fleet-apps { padding-top: 0; }
+}
+
