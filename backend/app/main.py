@@ -15,6 +15,8 @@ import subprocess
 import threading
 import time
 import urllib.request
+from collections.abc import Callable
+from typing import Any
 from datetime import datetime
 from pathlib import Path
 
@@ -111,14 +113,14 @@ class _TTLCache:
     modules stay unaware that anything above them caches.
     """
 
-    def __init__(self, ttl: float):
+    def __init__(self, ttl: float) -> None:
         self.ttl = ttl
         self.stamp: str | None = None   # wall clock of the last store, for /health
         self._lock = threading.Lock()
         self._values: dict = {}         # key -> (monotonic deadline, value)
         self._flights: dict = {}        # key -> Event the computing thread will set
 
-    def get(self, key, compute):
+    def get(self, key: Any, compute: Callable[[], Any]) -> Any:
         while True:
             with self._lock:
                 hit = self._values.get(key)
@@ -1640,7 +1642,7 @@ def api_apply_template(pid: str, body: ApplyIn):
         if not chart.get(con, pid):
             raise HTTPException(404, f"no problem '{pid}'")
 
-        def create(title, waypoint, parent_id):
+        def create(title: str, waypoint: str, parent_id: str | None) -> str:
             return chart.create_problem(con, title=title, waypoint=waypoint,
                                         parent_id=parent_id, draft=not waypoint)
 

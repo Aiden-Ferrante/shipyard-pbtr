@@ -213,7 +213,7 @@ def owed(version: dict | None, changelog: dict | None,
     """
     out = []
 
-    def add(kind: str, n: int | None = None, detail: str | None = None):
+    def add(kind: str, n: int | None = None, detail: str | None = None) -> None:
         out.append({"kind": kind, "n": n, "detail": detail})
 
     def plural(n: int, noun: str) -> str:

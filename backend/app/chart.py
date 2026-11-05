@@ -18,6 +18,7 @@ import re
 import sqlite3
 import time
 import uuid
+from typing import Any
 
 SOUNDINGS = ("assumed", "proxy", "observed")
 _RANK = {s: i for i, s in enumerate(SOUNDINGS)}
@@ -1233,7 +1234,7 @@ def set_solved(con: sqlite3.Connection, pid: str, solved: bool) -> dict:
     return get(con, pid)
 
 
-def _col(con: sqlite3.Connection, pid: str, name: str):
+def _col(con: sqlite3.Connection, pid: str, name: str) -> Any:
     r = con.execute(f"SELECT {name} FROM problems WHERE id = ?", (pid,)).fetchone()
     return r[0] if r else None
 

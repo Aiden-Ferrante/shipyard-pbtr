@@ -29,7 +29,9 @@ import sqlite3
 import uuid
 from datetime import datetime, timezone
 
-from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
+from starlette.requests import Request
+from starlette.responses import Response
 
 _ACTOR: contextvars.ContextVar[str] = contextvars.ContextVar("actor", default="unknown")
 EVENT_KINDS = ("commit", "tag", "push", "anchor", "thaw", "cycle_open", "cycle_link", "phase",
@@ -53,7 +55,7 @@ def session_of(act: str | None = None) -> str | None:
 
 
 class ActorMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request, call_next):
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         hdr = request.headers.get("x-actor")
         # The SPA never sets the header; a browser is the human.
         val = hdr.strip() if hdr else ("human:ui" if "text/html" in request.headers.get("accept", "") or request.headers.get("sec-fetch-mode") else "unknown")

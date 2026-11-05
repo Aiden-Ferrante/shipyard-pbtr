@@ -17,6 +17,7 @@ Two rules the writes obey:
 """
 
 import re
+from collections.abc import Iterator
 from pathlib import Path
 
 SOUNDINGS = ("assumed", "proxy", "observed")
@@ -276,7 +277,7 @@ def _sentence_start(para: str, pos: int) -> int:
     return bounds[-1] if bounds else 0
 
 
-def _paragraphs(body: str):
+def _paragraphs(body: str) -> Iterator[str]:
     """Prose blocks with the hard wrapping undone, headings and frontmatter dropped."""
     for block in _PARA_SPLIT.split(body or ""):
         kept = [ln.strip() for ln in block.split("\n")
