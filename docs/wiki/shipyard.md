@@ -1,6 +1,6 @@
 # Shipyard Wiki
 
-> A local project lifecycle manager for the ~/Desktop/code/ fleet that tracks repository stages, checklists, and integration status with Mission Control.
+> A local project lifecycle manager for the ~/code/ fleet that tracks repository stages, checklists, and integration status with Mission Control.
 
 > Generated 2026-07-09 by DeepWiki-Open (local, keyless: qwen3-coder-next + nomic-embed-text via Ollama).
 > Machine-owned doc floor — regenerate rather than hand-edit; decisions live in docs/adr/.
@@ -24,7 +24,7 @@ The following files were used as context for generating this wiki page:
 
 # Shipyard Project Lifecycle Manager
 
-Shipyard is a local, keyless project-lifecycle manager for the `~/Desktop/code/` fleet. It aggregates project manifests (`PROJECT.yaml`) and enforces versioned checklists defined in `standards.yaml`, bridging with Mission Control for live runtime status while storing checklist state locally in SQLite.
+Shipyard is a local, keyless project-lifecycle manager for the `~/code/` fleet. It aggregates project manifests (`PROJECT.yaml`) and enforces versioned checklists defined in `standards.yaml`, bridging with Mission Control for live runtime status while storing checklist state locally in SQLite.
 
 ## Overview
 
@@ -41,7 +41,7 @@ Projects declare their lifecycle state via `PROJECT.yaml` manifests, which trave
 
 ```mermaid
 graph TD
-    A[~/Desktop/code/*/PROJECT.yaml] -->|scanned by| B(shipyard backend)
+    A[~/code/*/PROJECT.yaml] -->|scanned by| B(shipyard backend)
     C[standards.yaml] -->|loaded by| B
     D[data/shipyard.sqlite] -->|check state| B
     E[Mission Control apps.yaml + /api/apps] -->|read-only status| B
@@ -49,7 +49,7 @@ graph TD
     F -->|serves static| G[dist/index.html]
 ```
 
-The backend scans `CODE_ROOT` (default: `~/Desktop/code`) up to depth 4, skipping known directories like `.git`, `node_modules`, etc. For each directory containing a `PROJECT.yaml`, it loads the manifest and merges it with checklist items from `standards.yaml` filtered by the project's stage.
+The backend scans `CODE_ROOT` (default: `~/code`) up to depth 4, skipping known directories like `.git`, `node_modules`, etc. For each directory containing a `PROJECT.yaml`, it loads the manifest and merges it with checklist items from `standards.yaml` filtered by the project's stage.
 
 Checklist state (done/not, notes, timestamps) is stored in SQLite under `data/shipyard.sqlite`. Mission Control integration is read-only: shipyard reads `apps.yaml` for registry info and calls `/api/apps` for live status, degrading gracefully if MC is unavailable.
 
@@ -187,7 +187,7 @@ All configuration uses environment variables with sensible defaults:
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `SHIPYARD_PORT` | 8845 | Backend port |
-| `SHIPYARD_CODE_ROOT` | ~/Desktop/code | Directory to scan for manifests |
+| `SHIPYARD_CODE_ROOT` | ~/code | Directory to scan for manifests |
 | `SHIPYARD_MC_URL` | http://localhost:9090 | Mission Control API URL |
 | `SHIPYARD_DB` | data/shipyard.sqlite | SQLite database path |
 

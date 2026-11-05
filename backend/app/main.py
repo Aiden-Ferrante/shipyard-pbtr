@@ -1,6 +1,6 @@
 """shipyard — project-lifecycle manager for the code/ fleet.
 
-Scans ~/Desktop/code/*/PROJECT.yaml manifests and joins each project to the chart
+Scans $SHIPYARD_CODE_ROOT/*/PROJECT.yaml manifests (default ~/code) and joins each project to the chart
 (why it exists), the open work in its backlog, its git history, and Mission Control
 for live runtime status.
 
@@ -30,10 +30,12 @@ from . import (arguments as args_mod, chart, ledger, repo as repo_mod, tokens,
 
 ROOT = Path(__file__).resolve().parent.parent.parent  # shipyard/
 
-CODE_ROOT = Path(os.environ.get("SHIPYARD_CODE_ROOT", "~/Desktop/code")).expanduser()
+# Where the repos live. Every path below is overridable by env; the defaults are
+# neutral so a fresh clone runs without the author's directory layout.
+CODE_ROOT = Path(os.environ.get("SHIPYARD_CODE_ROOT", "~/code")).expanduser()
 MC_URL = os.environ.get("SHIPYARD_MC_URL", "http://localhost:9090")
 MC_APPS_YAML = Path(os.environ.get(
-    "SHIPYARD_MC_APPS_YAML", "~/Desktop/code/mission-control/apps.yaml")).expanduser()
+    "SHIPYARD_MC_APPS_YAML", CODE_ROOT / "mission-control" / "apps.yaml")).expanduser()
 DB_PATH = Path(os.environ.get("SHIPYARD_DB", ROOT / "data" / "shipyard.sqlite"))
 # The chart's one-way markdown mirror, written on every chart write. Defaults to a
 # gitignored path; point SHIPYARD_CHART_EXPORT at a versioned file to keep its history.
@@ -51,18 +53,17 @@ TEMPLATES_DIR = Path(os.environ.get("SHIPYARD_TEMPLATES_DIR", ROOT / "templates"
 # Where a template's document scaffold lands. Point it at a vault folder and cycle
 # notes go there instead — the app does not care which, only that it is one place.
 DOCUMENTS_DIR = Path(os.environ.get("SHIPYARD_DOCUMENTS_DIR", ROOT / "docs" / "cycles"))
-# Cycle records are hand-written in the vault under Projects/<Project>/Cycles/, which
-# is where Development Protocol 1.0 puts them and where the real ones already are.
-# Shipyard reads them there; the repo keeps the tags and the changelog.
+# Fallback home for cycle records kept outside a repo, laid out as
+# <root>/<Project>/Cycles/ (e.g. a notes vault). A repo's own docs/cycles/ wins.
 CYCLES_ROOT = Path(os.environ.get(
-    "SHIPYARD_CYCLES_ROOT", "~/notes/Projects")).expanduser()
+    "SHIPYARD_CYCLES_ROOT", ROOT / "data" / "cycles")).expanduser()
 
 SCAN_SKIP = {".git", "node_modules", ".venv", ".micromamba", "__pycache__",
              "site-packages", ".next", "dist", "build", "media", "data", "lake",
              # Retired projects keep their manifest, so without this the archived
              # copy of a project competes with the live one for the same id.
              "_archive"}
-SCAN_DEPTH = 4  # PROJECT.yaml may sit below code/ root (e.g. dgx-spark-playbooks/nvidia/txt2kg)
+SCAN_DEPTH = 4  # PROJECT.yaml may sit a few levels below the code root
 # How long a cached scan may keep serving page loads before disk and git are
 # asked again. Short on purpose: the TTL exists to collapse one Fleet load —
 # four endpoints, each of which used to pay the full per-repo git sweep — into
