@@ -224,8 +224,8 @@ def _scan_uncached() -> dict[str, dict]:
         m["id"] = pid
         m["path"] = str(path)
         # Two manifests claiming one id silently shadowed each other, and which one
-        # won came down to walk order — `_archive/learnhub` and `learnhub-core` both
-        # said `id: learn-hub`, so every Learn Hub reading was a coin flip. Say so.
+        # won came down to walk order — an archived copy and its successor shared an
+        # id, so every reading of that project was a coin flip. Say so.
         if pid in found:
             log.warning("duplicate project id %r: %s shadows %s",
                         pid, found[pid]["path"], path)
@@ -918,7 +918,7 @@ def _records_dir(manifest: dict) -> Path | None:
     """Where this project's cycle records live.
 
     Vault folders are named by hand, so they do not always match the manifest —
-    "Learn Hub" lives in `LearnHub`. Try the plausible spellings rather than demand
+    "My App" may live in `MyApp`. Try the plausible spellings rather than demand
     a convention nobody agreed to.
 
     Prefer the repo's own `docs/cycles/`: it is under git, it travels with the code,
@@ -1051,7 +1051,7 @@ def api_board():
         charted_repos = set()
         # A card appears ONCE, under the first bearing that claims it. A problem can
         # serve several, and rendering its whole subtree under each turns the board
-        # into a hall of mirrors — learn-hub appeared twice with ten ghosts each.
+        # into a hall of mirrors — one project appeared twice with ten ghosts each.
         placed: set[str] = set()
         # Headings are pinned goals, falling back to roots when nothing is pinned.
         # A chart deep enough to be useful has one root and fifty descendants, so

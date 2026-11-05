@@ -25,8 +25,8 @@
 
   /* Same for the sans. This is a no-op today — it spells out the stack Tailwind
      was already falling back to — but it means the fleet's typeface is stated in
-     fleet.css rather than inherited by accident, which is what let Learn Hub
-     drift onto Inter without anything noticing. */
+     fleet.css rather than inherited by accident, which is how an app drifts onto
+     another face without anything noticing. */
   --font-sans: var(--fleet-font-sans);
 
   /* The four meanings come from fleet.css; this block only lends them Tailwind

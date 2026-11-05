@@ -147,8 +147,7 @@ export function DocsPage({ onOpenDoc, onDecisions }) {
 
       <p className="mt-3 text-micro leading-relaxed text-faint">
         And what it is not: not a process supervisor (Mission Control answers <i>is it
-        running</i>), not a task tracker (<Mono>Backlog.md</Mono>), not a study tracker
-        (Learn Hub), not a compliance enforcer. When a feature would duplicate one of
+        running</i>), not a task tracker (<Mono>Backlog.md</Mono>), not a compliance enforcer. When a feature would duplicate one of
         those, the answer is a read, not a table.
       </p>
 

@@ -1,8 +1,7 @@
 """Impact tokens — a destructive write must present the token its impact read issued.
 
-The pattern (fleet-wide, 2026-09-04; this file is copied verbatim into
-mission-control and learnhub-core — plain functions, no shared package across
-tiers): the impact read appends `token` to its payload and remembers
+The pattern (2026-09-04; plain functions, copied rather than shared so no
+package crosses tiers): the impact read appends `token` to its payload and remembers
 (kind, target, digest-of-the-impact, expiry). The destructive route takes
 `token` as a query parameter and refuses, naming the read to make, when the
 token is missing, unknown, expired, issued for another target, or when the

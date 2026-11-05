@@ -411,9 +411,8 @@ function Orient({ pid }) {
 
 /* ---------- recent work ---------- */
 
-/* Replaces a tab that read a per-repo backlog. One of nineteen repos has one, and
-   Learn Hub deliberately deleted its own — so it read zero everywhere. Git knows
-   what happened without being told. */
+/* Replaces a tab that read a per-repo backlog. One of nineteen repos had one, so
+   it read zero almost everywhere. Git knows what happened without being told. */
 function Recent({ pid }) {
   const [w, setW] = useState(null)
   const [wErr, setWErr] = useState(null)

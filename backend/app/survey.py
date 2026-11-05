@@ -361,8 +361,8 @@ def dependencies(path: Path, primary: str | None = None) -> dict:
 
     # A project with a Python runtime keeps its node packages in a frontend, and
     # listing react next to five real runtime deps buries the answer. Primary
-    # language is the wrong test — Learn Hub is a Python app whose TypeScript
-    # frontend is simply bigger. The presence of Python deps is the right one.
+    # language is the wrong test — a Python app's TypeScript frontend can simply
+    # be bigger. The presence of Python deps is the right one.
     node: set[str] = set()
     for pkg in ([] if py else _manifests(path, "package.json")):
         try:

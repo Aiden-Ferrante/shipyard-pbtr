@@ -263,9 +263,8 @@ def _unreleased_entries(body: str) -> int:
 def recent_work(path: Path, tag: str | None, limit: int = 12) -> dict:
     """What has actually happened lately, read from git rather than a task list.
 
-    The work tab used to read a per-repo backlog. One of nineteen repos has one,
-    and Learn Hub deliberately deleted its own — so the tab read zero everywhere
-    and would have kept doing so. Git knows what happened without being told.
+    The work tab used to read a per-repo backlog. One of nineteen repos had one,
+    so the tab read zero almost everywhere and would have kept doing so. Git knows what happened without being told.
     """
     path = Path(path)
     if not (path / ".git").exists():
@@ -730,7 +729,7 @@ def readme_summary(root: Path) -> str:
 
     This exists because the description a human copies by hand is the one that
     comes out wrong. Four manifests in this fleet carry a description cut
-    mid-sentence — "…every custom app on", "…driven by a DGX" — each stopping
+    mid-sentence, each stopping
     exactly at the README's line wrap, because on screen a wrapped line looks
     like a whole one.
 
