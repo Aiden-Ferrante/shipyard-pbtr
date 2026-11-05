@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "fleet": {
-      "type": "stdio",
-      "command": "${HOME}/Desktop/code/fleet/run_mcp.sh"
-    }
-  }
-}
